@@ -258,15 +258,15 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                   const isEnd = index === trackingData.length - 1;
                   
                   return (
-                    <div
-                      key={record.id}
-                      className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer pointer-events-auto group z-10"
+                    <React.Fragment key={record.id}>
+                      <div
+                        className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer pointer-events-auto group z-10"
                       style={{
                         left: `${position.x}%`,
                         top: `${position.y}%`,
                       }}
                       onClick={() => setSelectedPoint(record)}
-                    >
+                      >
                       {/* Marker */}
                       <div className="relative">
                         {/* Heading arrow */}
@@ -323,9 +323,9 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                           <div className="text-xs text-gray-600">
                             {record.timestamp.toLocaleTimeString()}
                           </div>
-                        </div>
+                      </div>
                       )}
-                    </div>
+                    </React.Fragment>
                   );
                 })}
               </div>
