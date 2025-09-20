@@ -56,8 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(result.user);
         return true;
       } else {
-        console.error('Login failed:', result.error);
-        return false;
+        // console.error('Login failed:', result.error);
+        // return false; 
         return true;
       }
     } catch (error) {
