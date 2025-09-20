@@ -170,20 +170,79 @@ const generateHistoryData = (): HistoryRecord[] => {
       // Add some realistic variation to the data
       const timeVariation = Math.sin(i * 0.1) * 0.3; // Cyclical variation
       const randomVariation = (Math.random() - 0.5) * 0.2; // Random variation
-      
-      records.push({
-        id: `${vessel.id}-${i}`,
-        vesselId: vessel.id,
-        vesselName: vessel.name,
-        timestamp,
-        latitude: vessel.basePosition.lat + (timeVariation + randomVariation) * 0.1,
-        longitude: vessel.basePosition.lng + (timeVariation + randomVariation) * 0.1,
-        speed: Math.max(0, vessel.baseSpeed + (timeVariation + randomVariation) * 8),
-        heading: (vessel.baseHeading + (timeVariation + randomVariation) * 60) % 360,
-        rpmPortside: Math.max(0, vessel.baseRpmPortside + (timeVariation + randomVariation) * 400),
-        rpmStarboard: Math.max(0, vessel.baseRpmStarboard + (timeVariation + randomVariation) * 400),
-        rpmCenter: Math.max(0, vessel.baseRpmCenter + (timeVariation + randomVariation) * 400),
-      });
+      if (vessel.name != 'Sinar Bahari') {
+        records.push({
+          id: `${vessel.id}-${i}`,
+          vesselId: vessel.id,
+          vesselName: vessel.name,
+          timestamp,
+          latitude: vessel.basePosition.lat + (timeVariation + randomVariation) * 0.1,
+          longitude: vessel.basePosition.lng + (timeVariation + randomVariation) * 0.1,
+          speed: Math.max(0, vessel.baseSpeed + (timeVariation + randomVariation) * 8),
+          heading: (vessel.baseHeading + (timeVariation + randomVariation) * 60) % 360,
+          rpmPortside: Math.max(0, vessel.baseRpmPortside + (timeVariation + randomVariation) * 400),
+          rpmStarboard: Math.max(0, vessel.baseRpmStarboard + (timeVariation + randomVariation) * 400),
+          rpmCenter: Math.max(0, vessel.baseRpmCenter + (timeVariation + randomVariation) * 400),
+        });
+      }
+      else {
+        let timestamp = new Date(now.getTime() - (0 * 2 * 60 * 60 * 1000)); // Every 2 hours
+        records.push({
+          id: `${vessel.id}-${0}`,
+          vesselId: vessel.id,
+          vesselName: vessel.name,
+          timestamp,
+          latitude: -7.38542,
+          longitude: 113.839851,
+          speed: Math.max(0, vessel.speed + (Math.random() - 0.5) * 8),
+          heading: Math.floor(Math.random() * 360),
+          rpmPortside: Math.max(0, vessel.rpmPortside + (Math.random() - 0.5) * 400),
+          rpmStarboard: Math.max(0, vessel.rpmStarboard + (Math.random() - 0.5) * 400),
+          rpmCenter: Math.max(0, vessel.rpmCenter + (Math.random() - 0.5) * 400),
+        });
+        timestamp = new Date(now.getTime() - (1 * 2 * 60 * 60 * 1000)); // Every 2 hours
+        records.push({
+          id: `${vessel.id}-${1}`,
+          vesselId: vessel.id,
+          vesselName: vessel.name,
+          timestamp,
+          latitude: -7.384068,
+          longitude: 113.83886,
+          speed: Math.max(0, vessel.speed + (Math.random() - 0.5) * 8),
+          heading: Math.floor(Math.random() * 360),
+          rpmPortside: Math.max(0, vessel.rpmPortside + (Math.random() - 0.5) * 400),
+          rpmStarboard: Math.max(0, vessel.rpmStarboard + (Math.random() - 0.5) * 400),
+          rpmCenter: Math.max(0, vessel.rpmCenter + (Math.random() - 0.5) * 400),
+        });
+        timestamp = new Date(now.getTime() - (2 * 2 * 60 * 60 * 1000)); // Every 2 hours
+        records.push({
+          id: `${vessel.id}-${2}`,
+          vesselId: vessel.id,
+          vesselName: vessel.name,
+          timestamp,
+          latitude: -7.383173,
+          longitude: 113.838173,
+          speed: Math.max(0, vessel.speed + (Math.random() - 0.5) * 8),
+          heading: Math.floor(Math.random() * 360),
+          rpmPortside: Math.max(0, vessel.rpmPortside + (Math.random() - 0.5) * 400),
+          rpmStarboard: Math.max(0, vessel.rpmStarboard + (Math.random() - 0.5) * 400),
+          rpmCenter: Math.max(0, vessel.rpmCenter + (Math.random() - 0.5) * 400),
+        });
+        timestamp = new Date(now.getTime() - (3 * 2 * 60 * 60 * 1000)); // Every 2 hours
+        records.push({
+          id: `${vessel.id}-${3}`,
+          vesselId: vessel.id,
+          vesselName: vessel.name,
+          timestamp,
+          latitude: -7.382483,
+          longitude: 113.8377,
+          speed: Math.max(0, vessel.speed + (Math.random() - 0.5) * 8),
+          heading: Math.floor(Math.random() * 360),
+          rpmPortside: Math.max(0, vessel.rpmPortside + (Math.random() - 0.5) * 400),
+          rpmStarboard: Math.max(0, vessel.rpmStarboard + (Math.random() - 0.5) * 400),
+          rpmCenter: Math.max(0, vessel.rpmCenter + (Math.random() - 0.5) * 400),
+        });
+      }
     }
   });
   
