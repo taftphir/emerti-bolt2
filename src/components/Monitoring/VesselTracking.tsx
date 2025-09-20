@@ -16,6 +16,7 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
   const [trackingData, setTrackingData] = useState<HistoryRecord[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [selectedPoint, setSelectedPoint] = useState<HistoryRecord | null>(null);
 
   // Map bounds for tracking area
   const mapBounds = {
@@ -265,8 +266,20 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                         left: `${position.x}%`,
                         top: `${position.y}%`,
                       }}
+                      onClick={() => setSelectedPoint(record)}
                     >
                       {/* Marker */}
+                      <div 
+                        className="absolute w-6 h-6 pointer-events-none"
+                        style={{ 
+                          transform: `rotate(${record.heading}deg)`,
+                          transformOrigin: 'center center'
+                        }}
+                      >
+                        <div className="w-full h-0.5 bg-gray-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-60"></div>
+                        <div className="w-2 h-2 bg-gray-600 absolute top-0 left-1/2 transform -translate-x-1/2 opacity-60" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
+                      </div>
+                      
                       <div className={`relative p-1 rounded-full border-2 shadow-lg transition-transform hover:scale-110 ${
                         isStart ? 'bg-green-500 border-green-600' :
                         isEnd ? 'bg-red-500 border-red-600' :
@@ -280,12 +293,12 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                           'bg-white'
                         }`}></div>
                         
-                        {/* Tooltip */}
+                        {/* Quick info tooltip */}
                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                          <div>Point {index + 1}</div>
                           <div>{record.timestamp.toLocaleTimeString()}</div>
-                          <div>{record.speed.toFixed(1)} kts</div>
-                          <div>{record.heading}°</div>
-                          <div className="text-xs opacity-75">Point {index + 1}</div>
+                          <div>{record.speed.toFixed(1)} kts • {record.heading}°</div>
+                          <div className="text-xs opacity-75">Click for details</div>
                         </div>
                       </div>
                       
@@ -298,13 +311,6 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                           <div className="text-xs text-gray-600">
                             {record.timestamp.toLocaleTimeString()}
                           </div>
-                        </div>
-                      )}
-                      
-                      {/* Point number for waypoints (show on hover) */}
-                      {isWaypoint && (
-                        <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs rounded px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {index + 1}
                         </div>
                       )}
                     </div>
@@ -338,8 +344,13 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                     <div className="w-4 h-0.5 border-t-2 border-dashed border-blue-500"></div>
                     <span>Journey Path</span>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-2 bg-gray-600 relative" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
+                    <span>Vessel Heading</span>
+                  </div>
                   <div className="pt-1 border-t border-gray-200 mt-2">
                     <span className="text-gray-600">Total: {trackingData.length} points</span>
+                    <div className="text-xs text-gray-500 mt-1">Click any point for details</div>
                   </div>
                 </div>
               </div>
@@ -452,5 +463,87 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
         )}
       </div>
     </div>
+      {/* Point Details Modal */}
+      {selectedPoint && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h3 className="text-lg font-semibold text-gray-800">
+                Tracking Point Details
+              </h3>
+              <button
+                onClick={() => setSelectedPoint(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Time</label>
+                  <p className="text-sm text-gray-900">{selectedPoint.timestamp.toLocaleString()}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Point Number</label>
+                  <p className="text-sm text-gray-900">
+                    {trackingData.findIndex(r => r.id === selectedPoint.id) + 1} of {trackingData.length}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Latitude</label>
+                  <p className="text-sm text-gray-900 font-mono">{selectedPoint.latitude.toFixed(6)}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Longitude</label>
+                  <p className="text-sm text-gray-900 font-mono">{selectedPoint.longitude.toFixed(6)}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Speed</label>
+                  <p className="text-sm text-gray-900">{selectedPoint.speed.toFixed(1)} knots</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Heading</label>
+                  <p className="text-sm text-gray-900">{selectedPoint.heading.toFixed(1)}°</p>
+                </div>
+              </div>
+              
+              <div className="border-t pt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Engine RPM</label>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Portside:</span>
+                    <p className="font-medium">{selectedPoint.rpmPortside.toFixed(0)} RPM</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Starboard:</span>
+                    <p className="font-medium">{selectedPoint.rpmStarboard.toFixed(0)} RPM</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Center:</span>
+                    <p className="font-medium">{selectedPoint.rpmCenter.toFixed(0)} RPM</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end p-6 border-t">
+              <button
+                onClick={() => setSelectedPoint(null)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
   );
 }
