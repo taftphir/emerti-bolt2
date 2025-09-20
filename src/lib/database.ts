@@ -152,10 +152,9 @@ export class UserDatabase {
   static async getUserByUsername(username: string): Promise<DatabaseUser | null> {
     try {
       const query = `
-        SELECT id, username, email, password_hash, role, status, 
-               created_at, updated_at, last_login
-        FROM users 
-        WHERE username = $1 AND status = 'active'
+        SELECT id, login, signature
+        FROM res_users 
+        WHERE login = $1
       `;
       const result = await pool.query(query, [username]);
       return result.rows[0] || null;
