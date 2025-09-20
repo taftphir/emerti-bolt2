@@ -12,10 +12,10 @@ export default function VesselMap() {
 
   // Map bounds for Madura Island area
   const mapBounds = {
-    north: -6.5,
-    south: -7.5,
-    east: 115.1,
-    west: 112.5
+    north: -6.0,
+    south: -8.5,
+    east: 115.0,
+    west: 111.5
   };
 
   // Convert lat/lng to pixel position within the map container
@@ -69,7 +69,7 @@ export default function VesselMap() {
         <div className="h-[70vh] lg:h-[80vh] relative">
               {/* OpenStreetMap iframe */}
               <iframe
-                src="https://www.openstreetmap.org/export/embed.html?bbox=112.5%2C-7.5%2C115.1%2C-6.5&layer=mapnik&marker=-7.0%2C113.8"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=111.5%2C-8.5%2C115.0%2C-6.0&layer=mapnik&marker=-7.2364197%2C113.3032598"
                 className="w-full h-full border-0"
                 title="Madura Island Map"
                 onLoad={() => setMapLoaded(true)}
@@ -156,8 +156,8 @@ export default function VesselMap() {
               
               {/* Map controls and legend */}
               <div className="absolute top-2 sm:top-4 left-2 sm:left-4 bg-white rounded-lg shadow-sm p-2 sm:p-3">
-                <h3 className="text-xs sm:text-sm font-semibold text-gray-800 mb-1">Madura Island</h3>
-                <p className="text-xs text-gray-600">East Java, Indonesia</p>
+                <h3 className="text-xs sm:text-sm font-semibold text-gray-800 mb-1">Fleet Monitoring Area</h3>
+                <p className="text-xs text-gray-600">Center: -7.236, 113.303</p>
               </div>
               
               <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 bg-white rounded-lg shadow-sm p-2 sm:p-3">

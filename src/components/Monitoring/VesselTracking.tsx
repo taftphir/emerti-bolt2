@@ -19,10 +19,10 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
 
   // Map bounds for tracking area
   const mapBounds = {
-    north: -6.5,
-    south: -7.5,
-    east: 115.1,
-    west: 112.5
+    north: -6.0,
+    south: -8.5,
+    east: 115.0,
+    west: 111.5
   };
 
   useEffect(() => {
@@ -218,7 +218,7 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
             <div className="h-[70vh] lg:h-[80vh] relative">
               {/* OpenStreetMap iframe */}
               <iframe
-                src="https://www.openstreetmap.org/export/embed.html?bbox=112.5%2C-7.5%2C115.1%2C-6.5&layer=mapnik&marker=-7.0%2C113.8"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=111.5%2C-8.5%2C115.0%2C-6.0&layer=mapnik&marker=-7.2364197%2C113.3032598"
                 className="w-full h-full border-0"
                 title="Vessel Tracking Map"
                 onLoad={() => setMapLoaded(true)}
@@ -272,7 +272,11 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                         isEnd ? 'bg-red-500 border-red-600' :
                         'bg-blue-500 border-blue-600'
                       }`}>
-                        <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
+                        <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${
+                          isStart ? 'bg-white' :
+                          isEnd ? 'bg-white' :
+                          'bg-white'
+                        }`}></div>
                         
                         {/* Tooltip */}
                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
@@ -303,19 +307,25 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                 <h4 className="text-sm font-semibold text-gray-800 mb-2">Journey Legend</h4>
                 <div className="space-y-1 text-xs">
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full border border-green-600"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full border-2 border-green-600 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                    </div>
                     <span>Start Point</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full border border-blue-600"></div>
+                    <div className="w-3 h-3 bg-blue-500 rounded-full border-2 border-blue-600 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                    </div>
                     <span>Waypoint</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-full border border-red-600"></div>
+                    <div className="w-3 h-3 bg-red-500 rounded-full border-2 border-red-600 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                    </div>
                     <span>End Point</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-4 h-0.5 bg-blue-500 opacity-80" style={{ borderTop: '1px dashed #3b82f6' }}></div>
+                    <div className="w-4 h-0.5 border-t-2 border-dashed border-blue-500"></div>
                     <span>Journey Path</span>
                   </div>
                 </div>
