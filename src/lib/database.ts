@@ -157,6 +157,7 @@ export class UserDatabase {
         WHERE login = $1
       `;
       const result = await pool.query(query, [username]);
+      console.log('get user: '+username);
       return result.rows[0] || null;
     } catch (error) {
       console.error('Error fetching user:', error);
@@ -262,8 +263,8 @@ export class UserDatabase {
 // Initialize database
 export async function initializeDatabase() {
   try {
-    await UserDatabase.createUserTable();
-    await UserDatabase.insertDefaultUser();
+    // await UserDatabase.createUserTable();
+    // await UserDatabase.insertDefaultUser();
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization failed:', error);
