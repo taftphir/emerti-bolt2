@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Navigation, Clock, Route, Calendar, Download, ArrowLeft } from 'lucide-react';
+import { MapPin, Navigation as NavigationIcon, Clock, Route, Calendar, Download, ArrowLeft } from 'lucide-react';
 import { mockVessels, getHistoryData } from '../../data/mockData';
 import { Vessel, HistoryRecord } from '../../types/vessel';
 
