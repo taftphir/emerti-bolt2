@@ -157,7 +157,7 @@ export class UserDatabase {
         WHERE login = $1
       `;
       const result = await pool.query(query, [username]);
-      console.log('get user: '+username);
+      console.log('get user');
       return result.rows[0] || null;
     } catch (error) {
       console.error('Error fetching user:', error);
