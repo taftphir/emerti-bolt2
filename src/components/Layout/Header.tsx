@@ -94,7 +94,10 @@ export default function Header({ activeSection }: HeaderProps) {
           
           <div className="flex items-center space-x-1 sm:space-x-2 text-gray-700">
             <User size={16} className="sm:w-5 sm:h-5" />
-            <span className="font-medium text-sm sm:text-base hidden sm:inline">{user?.username}</span>
+            <div className="hidden sm:block">
+              <span className="font-medium text-sm">{user?.username}</span>
+              <div className="text-xs text-gray-500">{user?.role}</div>
+            </div>
           </div>
           
           <button

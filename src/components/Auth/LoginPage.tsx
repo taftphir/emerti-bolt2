@@ -18,12 +18,12 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const success = login(username, password);
+      const success = await login(username, password);
       if (!success) {
-        setError('Invalid username or password');
+        setError('Invalid username or password. Please check your credentials.');
       }
     } catch (err) {
-      setError('Login failed. Please try again.');
+      setError('Connection failed. Please check your internet connection and try again.');
     } finally {
       setLoading(false);
     }
