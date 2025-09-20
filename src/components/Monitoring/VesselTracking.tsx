@@ -256,7 +256,6 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                   const position = latLngToPixel(record.latitude, record.longitude);
                   const isStart = index === 0;
                   const isEnd = index === trackingData.length - 1;
-                  const isWaypoint = !isStart && !isEnd && trackingData.length > 2;
                   
                   return (
                     <div
@@ -269,33 +268,46 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                       onClick={() => setSelectedPoint(record)}
                     >
                       {/* Marker */}
-                      <div 
-                        className="absolute w-6 h-6 pointer-events-none"
-                        style={{ 
-                          transform: `rotate(${record.heading}deg)`,
-                          transformOrigin: 'center center'
-                        }}
-                      >
-                        <div className="w-full h-0.5 bg-gray-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-60"></div>
-                        <div className="w-2 h-2 bg-gray-600 absolute top-0 left-1/2 transform -translate-x-1/2 opacity-60" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
-                      </div>
+                      <div className="relative">
+                        {/* Heading arrow */}
+                        <div 
+                          className="absolute w-8 h-8 pointer-events-none z-0"
+                          style={{ 
+                            transform: `rotate(${record.heading}deg)`,
+                            transformOrigin: 'center center',
+                            left: '-50%',
+                            top: '-50%'
+                          }}
+                        >
+                          {/* Arrow line */}
+                          <div className="absolute w-6 h-0.5 bg-gray-700 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-70"></div>
+                          {/* Arrow head */}
+                          <div 
+                            className="absolute w-0 h-0 top-1/2 left-full transform -translate-y-1/2"
+                            style={{
+                              borderLeft: '4px solid #374151',
+                              borderTop: '2px solid transparent',
+                              borderBottom: '2px solid transparent',
+                              opacity: 0.7
+                            }}
+                          ></div>
+                        </div>
                       
-                      <div className={`relative p-1 rounded-full border-2 shadow-lg transition-transform hover:scale-110 ${
-                        isStart ? 'bg-green-500 border-green-600' :
-                        isEnd ? 'bg-red-500 border-red-600' :
-                        'bg-blue-500 border-blue-600'
-                      }`}>
-                        <div className={`${
-                          isStart || isEnd ? 'w-3 h-3 sm:w-4 sm:h-4' : 'w-2 h-2 sm:w-2.5 sm:h-2.5'
-                        } rounded-full ${
-                          isStart ? 'bg-white' :
-                          isEnd ? 'bg-white' :
-                          'bg-white'
-                        }`}></div>
+                        {/* Point marker */}
+                        <div className={`relative p-1 rounded-full border-2 shadow-lg transition-transform hover:scale-110 z-10 ${
+                          isStart ? 'bg-green-500 border-green-600' :
+                          isEnd ? 'bg-red-500 border-red-600' :
+                          'bg-blue-500 border-blue-600'
+                        }`}>
+                          <div className={`${
+                            isStart || isEnd ? 'w-3 h-3 sm:w-4 sm:h-4' : 'w-2 h-2 sm:w-2.5 sm:h-2.5'
+                          } rounded-full bg-white`}></div>
+                        </div>
+                      </div>
                         
                         {/* Quick info tooltip */}
                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
-                          <div>Point {index + 1}</div>
+                          <div>Point {index + 1} of {trackingData.length}</div>
                           <div>{record.timestamp.toLocaleTimeString()}</div>
                           <div>{record.speed.toFixed(1)} kts • {record.heading}°</div>
                           <div className="text-xs opacity-75">Click for details</div>
@@ -345,7 +357,17 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                     <span>Journey Path</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-4 h-2 bg-gray-600 relative" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
+                    <div className="flex items-center">
+                      <div className="w-4 h-0.5 bg-gray-700"></div>
+                      <div 
+                        className="w-0 h-0 ml-0.5"
+                        style={{
+                          borderLeft: '3px solid #374151',
+                          borderTop: '1.5px solid transparent',
+                          borderBottom: '1.5px solid transparent'
+                        }}
+                      ></div>
+                    </div>
                     <span>Vessel Heading</span>
                   </div>
                   <div className="pt-1 border-t border-gray-200 mt-2">
