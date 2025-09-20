@@ -1,9 +1,30 @@
 import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Ship, Activity, AlertTriangle, AlertCircle, Clock } from 'lucide-react';
 import StatCard from './StatCard';
-import { getDashboardStats, mockVessels, getHistoryData } from '../../data/mockData';
+import { getDashboardStats, mockVessels, getHistoryData, fetchVesselsFromDatabase } from '../../data/mockData';
+import { Vessel } from '../../types/vessel';
 
 export default function DashboardOverview() {
+  const [vessels, setVessels] = useState<Vessel[]>(mockVessels);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadVessels = async () => {
+      try {
+        const dbVessels = await fetchVesselsFromDatabase();
+        setVessels(dbVessels);
+      } catch (error) {
+        console.error('Failed to load vessels from database:', error);
+        // Keep using mock data as fallback
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVessels();
+  }, []);
+
   const stats = getDashboardStats();
   const historyData = getHistoryData();
   
@@ -20,7 +41,7 @@ export default function DashboardOverview() {
     });
     
     // Merge with vessel info
-    return mockVessels.map(vessel => {
+    return vessels.map(vessel => {
       const latestData = vesselMap.get(vessel.id);
       if (latestData) {
         return {
@@ -42,6 +63,17 @@ export default function DashboardOverview() {
   };
   
   const vesselsWithLatestData = getLatestVesselData();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+          <p className="text-sm text-gray-600">Loading vessel data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

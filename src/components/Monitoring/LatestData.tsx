@@ -2,20 +2,42 @@ import React, { useState, useEffect } from 'react';
 import { RefreshCw, Clock } from 'lucide-react';
 import AnalogGauge from './AnalogGauge';
 import PowerSourceIndicator from './PowerSourceIndicator';
-import { mockVessels } from '../../data/mockData';
+import { mockVessels, fetchVesselsFromDatabase } from '../../data/mockData';
 import { Vessel } from '../../types/vessel';
 
 export default function LatestData() {
-  const [selectedVessel, setSelectedVessel] = useState<Vessel>(mockVessels[0]);
+  const [vessels, setVessels] = useState<Vessel[]>(mockVessels);
+  const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadVessels = async () => {
+      try {
+        const dbVessels = await fetchVesselsFromDatabase();
+        setVessels(dbVessels);
+        setSelectedVessel(dbVessels[0] || null);
+      } catch (error) {
+        console.error('Failed to load vessels from database:', error);
+        setVessels(mockVessels);
+        setSelectedVessel(mockVessels[0]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVessels();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedVessel) return;
+
     const interval = setInterval(() => {
       setLastUpdate(new Date());
       // Simulate slight data variations
       setSelectedVessel(prev => ({
-        ...prev,
+        ...prev!,
         speed: prev.speed + (Math.random() - 0.5) * 2,
         rpmPortside: prev.rpmPortside + (Math.random() - 0.5) * 50,
         rpmStarboard: prev.rpmStarboard + (Math.random() - 0.5) * 50,
@@ -25,7 +47,7 @@ export default function LatestData() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedVessel]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -34,6 +56,25 @@ export default function LatestData() {
       setLastUpdate(new Date());
     }, 1000);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+          <p className="text-sm text-gray-600">Loading vessel data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedVessel) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-gray-600">No vessels available</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -64,12 +105,12 @@ export default function LatestData() {
         <select
           value={selectedVessel.id}
           onChange={(e) => {
-            const vessel = mockVessels.find(v => v.id === e.target.value);
+            const vessel = vessels.find(v => v.id === e.target.value);
             if (vessel) setSelectedVessel(vessel);
           }}
           className="block w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
         >
-          {mockVessels.map((vessel) => (
+          {vessels.map((vessel) => (
             <option key={vessel.id} value={vessel.id}>
               {vessel.name} ({vessel.type})
             </option>

@@ -1,14 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Navigation, Zap, Clock } from 'lucide-react';
-import { mockVessels } from '../../data/mockData';
+import { mockVessels, fetchVesselsFromDatabase } from '../../data/mockData';
 import { Vessel } from '../../types/vessel';
 import VesselTracking from './VesselTracking';
 
 export default function VesselMap() {
+  const [vessels, setVessels] = useState<Vessel[]>(mockVessels);
   const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
   const [showTracking, setShowTracking] = useState(false);
   const [trackingVesselId, setTrackingVesselId] = useState<string>('');
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadVessels = async () => {
+      try {
+        const dbVessels = await fetchVesselsFromDatabase();
+        setVessels(dbVessels);
+      } catch (error) {
+        console.error('Failed to load vessels from database:', error);
+        setVessels(mockVessels);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVessels();
+  }, []);
 
   // Map bounds for Madura Island area
   const mapBounds = {
@@ -37,6 +55,17 @@ export default function VesselMap() {
 
   if (showTracking) {
     return <VesselTracking selectedVesselId={trackingVesselId} onBack={handleBackToMap} />;
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+          <p className="text-sm text-gray-600">Loading vessel data...</p>
+        </div>
+      </div>
+    );
   }
 
   useEffect(() => {
@@ -87,7 +116,7 @@ export default function VesselMap() {
               
               {/* Vessel markers overlay */}
               <div className="absolute inset-0 pointer-events-none">
-                {mockVessels.map((vessel) => {
+                {vessels.map((vessel) => {
                   const position = latLngToPixel(vessel.position.lat, vessel.position.lng);
                   
                   return (

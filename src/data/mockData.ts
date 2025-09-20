@@ -1,5 +1,45 @@
 import { Vessel, DashboardStats } from '../types/vessel';
 import { HistoryRecord } from '../types/vessel';
+import { VesselDatabase, DatabaseVessel } from '../lib/database';
+
+// Convert database vessel to app vessel format
+const convertDatabaseVessel = (dbVessel: DatabaseVessel): Vessel => {
+  return {
+    id: `V${String(dbVessel.id).padStart(3, '0')}`,
+    name: dbVessel.name,
+    type: dbVessel.vessel_type,
+    status: dbVessel.status as 'Active' | 'Inactive' | 'Warning' | 'Critical',
+    image: dbVessel.image_url,
+    owner: dbVessel.owner,
+    vtsActive: dbVessel.vts_active,
+    emsActive: dbVessel.ems_active,
+    fmsActive: dbVessel.fms_active,
+    vesselKey: dbVessel.vessel_key,
+    position: {
+      lat: dbVessel.latitude || -7.0,
+      lng: dbVessel.longitude || 113.8
+    },
+    speed: dbVessel.speed || 0,
+    heading: dbVessel.heading || 0,
+    rpmPortside: dbVessel.rpm_portside || 0,
+    rpmStarboard: dbVessel.rpm_starboard || 0,
+    rpmCenter: dbVessel.rpm_center || 0,
+    fuelConsumption: dbVessel.fuel_consumption || 0,
+    lastUpdate: dbVessel.updated_at
+  };
+};
+
+// Fetch vessels from database
+export const fetchVesselsFromDatabase = async (): Promise<Vessel[]> => {
+  try {
+    const dbVessels = await VesselDatabase.getAllVessels();
+    return dbVessels.map(convertDatabaseVessel);
+  } catch (error) {
+    console.error('Error fetching vessels from database:', error);
+    // Fallback to mock data if database fails
+    return mockVessels;
+  }
+};
 
 // Generate mock history data first - this will be our primary data source
 const generateHistoryData = (): HistoryRecord[] => {

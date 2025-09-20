@@ -13,6 +13,114 @@ const dbConfig = {
   connectionTimeoutMillis: 2000,
 };
 
+// Vessel interface for database
+export interface DatabaseVessel {
+  id: number;
+  name: string;
+  vessel_type: string;
+  status: string;
+  owner: string;
+  vessel_key: string;
+  image_url?: string;
+  vts_active: boolean;
+  ems_active: boolean;
+  fms_active: boolean;
+  latitude?: number;
+  longitude?: number;
+  speed?: number;
+  heading?: number;
+  rpm_portside?: number;
+  rpm_starboard?: number;
+  rpm_center?: number;
+  fuel_consumption?: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// Vessel database operations
+export class VesselDatabase {
+  // Get all vessels
+  static async getAllVessels(): Promise<DatabaseVessel[]> {
+    try {
+      const query = `
+        SELECT id, name, vessel_type, status, owner, vessel_key, image_url,
+               vts_active, ems_active, fms_active, latitude, longitude,
+               speed, heading, rpm_portside, rpm_starboard, rpm_center,
+               fuel_consumption, created_at, updated_at
+        FROM vessel_vessel 
+        WHERE status != 'deleted'
+        ORDER BY name ASC
+      `;
+      const result = await pool.query(query);
+      return result.rows;
+    } catch (error) {
+      console.error('Error fetching vessels:', error);
+      throw error;
+    }
+  }
+
+  // Get vessel by ID
+  static async getVesselById(id: number): Promise<DatabaseVessel | null> {
+    try {
+      const query = `
+        SELECT id, name, vessel_type, status, owner, vessel_key, image_url,
+               vts_active, ems_active, fms_active, latitude, longitude,
+               speed, heading, rpm_portside, rpm_starboard, rpm_center,
+               fuel_consumption, created_at, updated_at
+        FROM vessel_vessel 
+        WHERE id = $1 AND status != 'deleted'
+      `;
+      const result = await pool.query(query, [id]);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error fetching vessel by ID:', error);
+      throw error;
+    }
+  }
+
+  // Update vessel position and sensor data
+  static async updateVesselData(id: number, data: {
+    latitude?: number;
+    longitude?: number;
+    speed?: number;
+    heading?: number;
+    rpm_portside?: number;
+    rpm_starboard?: number;
+    rpm_center?: number;
+    fuel_consumption?: number;
+  }): Promise<void> {
+    try {
+      const fields = [];
+      const values = [];
+      let paramIndex = 1;
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined) {
+          fields.push(`${key} = $${paramIndex}`);
+          values.push(value);
+          paramIndex++;
+        }
+      });
+
+      if (fields.length === 0) return;
+
+      fields.push(`updated_at = NOW()`);
+      values.push(id);
+
+      const query = `
+        UPDATE vessel_vessel 
+        SET ${fields.join(', ')}
+        WHERE id = $${paramIndex}
+      `;
+      
+      await pool.query(query, values);
+    } catch (error) {
+      console.error('Error updating vessel data:', error);
+      throw error;
+    }
+  }
+}
+
 // Create connection pool
 export const pool = new Pool(dbConfig);
 
