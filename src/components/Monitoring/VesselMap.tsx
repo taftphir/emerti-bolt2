@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Navigation, Zap, Clock } from 'lucide-react';
 import { mockVessels } from '../../data/mockData';
 import { Vessel } from '../../types/vessel';
+import VesselTracking from './VesselTracking';
 
 export default function VesselMap() {
   const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
+  const [showTracking, setShowTracking] = useState(false);
+  const [trackingVesselId, setTrackingVesselId] = useState<string>('');
   const [mapLoaded, setMapLoaded] = useState(false);
 
   // Map bounds for Madura Island area
@@ -21,6 +24,20 @@ export default function VesselMap() {
     const y = ((mapBounds.north - lat) / (mapBounds.north - mapBounds.south)) * 100;
     return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
   };
+
+  const handleShowTracking = (vesselId: string) => {
+    setTrackingVesselId(vesselId);
+    setShowTracking(true);
+  };
+
+  const handleBackToMap = () => {
+    setShowTracking(false);
+    setTrackingVesselId('');
+  };
+
+  if (showTracking) {
+    return <VesselTracking selectedVesselId={trackingVesselId} onBack={handleBackToMap} />;
+  }
 
   useEffect(() => {
     // Simulate map loading
@@ -119,6 +136,15 @@ export default function VesselMap() {
                                 <span>Position:</span>
                                 <span>{vessel.position.lat.toFixed(3)}, {vessel.position.lng.toFixed(3)}</span>
                               </div>
+                            </div>
+                            <div className="mt-3 pt-2 border-t border-gray-200">
+                              <button
+                                onClick={() => handleShowTracking(vessel.id)}
+                                className="w-full flex items-center justify-center space-x-1 px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
+                              >
+                                <Navigation size={12} />
+                                <span>Show Tracking</span>
+                              </button>
                             </div>
                           </div>
                         )}

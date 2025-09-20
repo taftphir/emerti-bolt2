@@ -25,6 +25,7 @@ const menuItems = [
   { id: 'daily-report', label: 'Daily Report', icon: TrendingUp },
   { id: 'latest-data', label: 'Latest Data', icon: Activity, parent: 'monitoring' },
   { id: 'map', label: 'Map Lokasi', icon: Map, parent: 'monitoring' },
+  { id: 'tracking', label: 'Vessel Tracking', icon: Navigation, parent: 'monitoring' },
   { id: 'data-history', label: 'Data History', icon: BarChart3, parent: 'monitoring' },
   { id: 'users', label: 'User Management', icon: Users, parent: 'configuration' },
   { id: 'vessels', label: 'Vessel Management', icon: Ship, parent: 'configuration' },

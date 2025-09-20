@@ -7,6 +7,7 @@ import Header from './components/Layout/Header';
 import DashboardOverview from './components/Dashboard/DashboardOverview';
 import LatestData from './components/Monitoring/LatestData';
 import VesselMap from './components/Monitoring/VesselMap';
+import VesselTracking from './components/Monitoring/VesselTracking';
 import DataHistory from './components/Monitoring/DataHistory';
 import DailyReport from './components/Monitoring/DailyReport';
 import UserManagement from './components/Configuration/UserManagement';
@@ -30,6 +31,8 @@ function MainApp() {
         return <LatestData />;
       case 'map':
         return <VesselMap />;
+      case 'tracking':
+        return <VesselTracking />;
       case 'data-history':
         return <DataHistory />;
       case 'daily-report':
