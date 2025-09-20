@@ -185,7 +185,7 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
       </div>
 
       {/* Vessel Info */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+      {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             {selectedVessel.image && (
@@ -195,7 +195,7 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                 className="w-16 h-16 rounded-lg object-cover border border-gray-200"
               />
             )}
-            <div>
+            <div> 
               <h3 className="text-lg font-bold text-gray-800">{selectedVessel.name}</h3>
               <p className="text-sm text-gray-600">{selectedVessel.type} • {selectedVessel.owner}</p>
               <p className="text-xs text-gray-500">Tracking Date: {new Date(selectedDate).toLocaleDateString()}</p>
@@ -209,7 +209,7 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
             {selectedVessel.status}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Map and Details */}
       <div className={`grid ${showDetails ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1'} gap-6`}>
