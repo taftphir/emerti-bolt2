@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   Menu as MenuIcon,
-  Navigation as NavigationIcon
+  Navigation as NavigationIcon,
+  ChevronDown
 } from 'lucide-react';
 import { useSystemConfig } from '../../contexts/SystemConfigContext';
 
@@ -42,6 +43,10 @@ const sections = {
 export default function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [expandedSections, setExpandedSections] = React.useState<{ [key: string]: boolean }>({
+    monitoring: true,
+    configuration: false
+  });
   const { config } = useSystemConfig();
 
   const toggleMobileMenu = () => {
@@ -54,6 +59,22 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
   const handleSectionChange = (section: string) => {
     onSectionChange(section);
     setIsMobileMenuOpen(false); // Close mobile menu after selection
+    
+    // Auto-expand section if selecting a submenu item
+    const menuItem = menuItems.find(item => item.id === section);
+    if (menuItem && menuItem.parent) {
+      setExpandedSections(prev => ({
+        ...prev,
+        [menuItem.parent]: true
+      }));
+    }
+  };
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
   };
 
   return (
@@ -128,11 +149,20 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
         {Object.entries(sections).map(([sectionId, sectionLabel]) => (
           <div key={sectionId} className="mt-6">
             {!isCollapsed ? (
-              <h3 className="text-blue-300 text-xs sm:text-sm font-semibold mb-2 px-4">{sectionLabel}</h3>
+              <button
+                onClick={() => toggleSection(sectionId)}
+                className="w-full flex items-center justify-between text-blue-300 text-xs sm:text-sm font-semibold mb-2 px-4 hover:text-blue-200 transition-colors"
+              >
+                <span>{sectionLabel}</span>
+                <ChevronDown 
+                  size={14} 
+                  className={`transform transition-transform ${expandedSections[sectionId] ? 'rotate-0' : '-rotate-90'}`}
+                />
+              </button>
             ) : (
               <div className="border-t border-blue-700 mx-2 mb-2 hidden lg:block"></div>
             )}
-            {menuItems
+            {(isCollapsed || expandedSections[sectionId]) && menuItems
               .filter(item => item.parent === sectionId)
               .map(item => (
                 <button

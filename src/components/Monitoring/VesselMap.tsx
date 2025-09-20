@@ -168,11 +168,23 @@ export default function VesselMap() {
                             </div>
                             <div className="mt-3 pt-2 border-t border-gray-200">
                               <button
-                                onClick={() => handleShowTracking(vessel.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleShowTracking(vessel.id);
+                                }}
                                 className="w-full flex items-center justify-center space-x-1 px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
                               >
                                 <Navigation size={12} />
                                 <span>Show Tracking</span>
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedVessel(null);
+                                }}
+                                className="w-full flex items-center justify-center space-x-1 px-2 py-1 mt-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors"
+                              >
+                                <span>Close</span>
                               </button>
                             </div>
                           </div>
@@ -187,6 +199,7 @@ export default function VesselMap() {
               <div className="absolute top-2 sm:top-4 left-2 sm:left-4 bg-white rounded-lg shadow-sm p-2 sm:p-3">
                 <h3 className="text-xs sm:text-sm font-semibold text-gray-800 mb-1">Fleet Monitoring Area</h3>
                 <p className="text-xs text-gray-600">Center: -7.236, 113.303</p>
+                <p className="text-xs text-gray-500 mt-1">Click vessel for details</p>
               </div>
               
               <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 bg-white rounded-lg shadow-sm p-2 sm:p-3">
