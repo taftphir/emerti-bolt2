@@ -244,6 +244,20 @@ const generateHistoryData = (): HistoryRecord[] => {
         rpmStarboard: Math.max(0, vessel.baseRpmStarboard + (Math.random() - 0.5) * 400),
         rpmCenter: Math.max(0, vessel.baserpmCenter + (Math.random() - 0.5) * 400),
       });
+      timestamp = new Date(now.getTime() - (4 * 2 * 60 * 60 * 1000)); // Every 2 hours
+      records.push({
+        id: `${vessel.id}-${4}`,
+        vesselId: vessel.id,
+        vesselName: vessel.name,
+        timestamp,
+        latitude: -7.2364197,
+        longitude: 113.3032598,
+        speed: Math.max(0, vessel.baseSpeed + (Math.random() - 0.5) * 8),
+        heading: Math.floor(Math.random() * 360),
+        rpmPortside: Math.max(0, vessel.baseRpmPortside + (Math.random() - 0.5) * 400),
+        rpmStarboard: Math.max(0, vessel.baseRpmStarboard + (Math.random() - 0.5) * 400),
+        rpmCenter: Math.max(0, vessel.baserpmCenter + (Math.random() - 0.5) * 400),
+      });
     }
   });
   
