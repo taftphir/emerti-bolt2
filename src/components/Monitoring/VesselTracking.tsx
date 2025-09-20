@@ -255,12 +255,12 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                   const position = latLngToPixel(record.latitude, record.longitude);
                   const isStart = index === 0;
                   const isEnd = index === trackingData.length - 1;
-                  const isWaypoint = !isStart && !isEnd;
+                  const isWaypoint = !isStart && !isEnd && trackingData.length > 2;
                   
                   return (
                     <div
                       key={record.id}
-                      className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer pointer-events-auto group"
+                      className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer pointer-events-auto group z-10"
                       style={{
                         left: `${position.x}%`,
                         top: `${position.y}%`,
@@ -272,29 +272,39 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                         isEnd ? 'bg-red-500 border-red-600' :
                         'bg-blue-500 border-blue-600'
                       }`}>
-                        <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${
+                        <div className={`${
+                          isStart || isEnd ? 'w-3 h-3 sm:w-4 sm:h-4' : 'w-2 h-2 sm:w-2.5 sm:h-2.5'
+                        } rounded-full ${
                           isStart ? 'bg-white' :
                           isEnd ? 'bg-white' :
                           'bg-white'
                         }`}></div>
                         
                         {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
                           <div>{record.timestamp.toLocaleTimeString()}</div>
                           <div>{record.speed.toFixed(1)} kts</div>
                           <div>{record.heading}°</div>
+                          <div className="text-xs opacity-75">Point {index + 1}</div>
                         </div>
                       </div>
                       
                       {/* Time label for start/end points */}
                       {(isStart || isEnd) && (
-                        <div className={`absolute ${isStart ? '-bottom-8' : '-top-8'} left-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded px-2 py-1 shadow-sm`}>
+                        <div className={`absolute ${isStart ? '-bottom-10' : '-top-10'} left-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded px-2 py-1 shadow-sm z-10`}>
                           <span className="text-xs font-medium text-gray-800">
                             {isStart ? 'START' : 'END'}
                           </span>
                           <div className="text-xs text-gray-600">
                             {record.timestamp.toLocaleTimeString()}
                           </div>
+                        </div>
+                      )}
+                      
+                      {/* Point number for waypoints (show on hover) */}
+                      {isWaypoint && (
+                        <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs rounded px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {index + 1}
                         </div>
                       )}
                     </div>
@@ -307,26 +317,29 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                 <h4 className="text-sm font-semibold text-gray-800 mb-2">Journey Legend</h4>
                 <div className="space-y-1 text-xs">
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full border-2 border-green-600 flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                    <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-green-600 flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
                     </div>
                     <span>Start Point</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full border-2 border-blue-600 flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                    <div className="w-2.5 h-2.5 bg-blue-500 rounded-full border-2 border-blue-600 flex items-center justify-center">
+                      <div className="w-1 h-1 bg-white rounded-full"></div>
                     </div>
-                    <span>Waypoint</span>
+                    <span>Tracking Points</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-full border-2 border-red-600 flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                    <div className="w-4 h-4 bg-red-500 rounded-full border-2 border-red-600 flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
                     </div>
                     <span>End Point</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-0.5 border-t-2 border-dashed border-blue-500"></div>
                     <span>Journey Path</span>
+                  </div>
+                  <div className="pt-1 border-t border-gray-200 mt-2">
+                    <span className="text-gray-600">Total: {trackingData.length} points</span>
                   </div>
                 </div>
               </div>
