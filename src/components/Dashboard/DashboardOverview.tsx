@@ -1,4 +1,3 @@
-import React from 'react';
 import React, { useState, useEffect } from 'react';
 import { Ship, Activity, AlertTriangle, AlertCircle, Clock } from 'lucide-react';
 import StatCard from './StatCard';
