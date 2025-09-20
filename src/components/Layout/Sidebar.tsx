@@ -105,15 +105,15 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
   const getFilteredSections = () => {
     if (!user) return {};
     
-    if (user.role === 'viewer') {
-      // Viewer has no sections (only top-level items)
-      return {};
-    }
+    // if (user.role === 'viewer') { 
+    //   // Viewer has no sections (only top-level items)
+    //   return {};
+    // }
     
-    if (user.role === 'operator') {
-      // Operator can only see monitoring section
-      return { monitoring: 'Monitoring' };
-    }
+    // if (user.role === 'operator') {
+    //   // Operator can only see monitoring section
+    //   return { monitoring: 'Monitoring' };
+    // }
     
     // Admin can see all sections
     return sections;
