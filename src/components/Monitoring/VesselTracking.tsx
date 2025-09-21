@@ -279,18 +279,12 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                             top: '-50%'
                           }}
                         >
-                          {/* Arrow line */}
-                          <div className="absolute w-6 h-0.5 bg-gray-700 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-70"></div>
-                          {/* Arrow head */}
-                          <div 
-                            className="absolute w-0 h-0 top-1/2 left-full transform -translate-y-1/2"
-                            style={{
-                              borderLeft: '4px solid #374151',
-                              borderTop: '2px solid transparent',
-                              borderBottom: '2px solid transparent',
-                              opacity: 0.7
-                            }}
-                          ></div>
+                          {/* Arrow image */}
+                          <img 
+                            src="/arrow.png" 
+                            alt="Heading direction"
+                            className="w-8 h-8 opacity-70"
+                          />
                         </div>
                       
                         {/* Point marker */}
