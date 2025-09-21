@@ -277,7 +277,7 @@ const generateHistoryData = (): HistoryRecord[] => {
         vesselName: vessel.name,
         timestamp,
         latitude: -7.294197,
-        longitude: 113.3032598,
+        longitude: 113.4032598,
         speed: Math.max(0, vessel.baseSpeed + (Math.random() - 0.5) * 8),
         heading: Math.floor(Math.random() * 360),
         rpmPortside: Math.max(0, vessel.baseRpmPortside + (Math.random() - 0.5) * 400),
