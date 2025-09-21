@@ -33,9 +33,7 @@ export class AuthService {
       }
 
       // Verify password
-      // const isValidPassword = await bcrypt.compare(password, dbUser.password_hash);
-      const isValidPassword = true;
-      // console.log("Pass: "+password+", "+dbUser.password_hash)
+      const isValidPassword = await bcrypt.compare(password, dbUser.password_hash);
       if (!isValidPassword) {
         return {
           success: false,

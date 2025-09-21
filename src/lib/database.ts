@@ -152,13 +152,12 @@ export class UserDatabase {
   static async getUserByUsername(username: string): Promise<DatabaseUser | null> {
     try {
       const query = `
-        SELECT id, login, signature
-        FROM res_users 
-        WHERE login = $1
+        SELECT id, username, email, password_hash, role, status, 
+               created_at, updated_at, last_login
+        FROM users 
+        WHERE username = $1 AND status = 'active'
       `;
       const result = await pool.query(query, [username]);
-      //console.log('get user'); 
-      // console.error('get user ini:', result.rows[0]);
       return result.rows[0] || null;
     } catch (error) {
       console.error('Error fetching user:', error);
@@ -264,8 +263,8 @@ export class UserDatabase {
 // Initialize database
 export async function initializeDatabase() {
   try {
-    // await UserDatabase.createUserTable();
-    // await UserDatabase.insertDefaultUser();
+    await UserDatabase.createUserTable();
+    await UserDatabase.insertDefaultUser();
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization failed:', error);

@@ -16,7 +16,7 @@ import VesselTypeManagement from './components/Configuration/VesselTypeManagemen
 import SystemSettings from './components/Configuration/SystemSettings';
 
 function MainApp() {
-  const { isAuthenticated, loading, user } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const [activeSection, setActiveSection] = useState('dashboard');
 
   // Show loading screen while initializing
@@ -35,49 +35,6 @@ function MainApp() {
   }
 
   const renderContent = () => {
-    // Check user permissions for each section
-    if (!user) return <DashboardOverview />;
-    
-    // Viewer role restrictions
-    if (user.role === 'viewer') {
-      switch (activeSection) {
-        case 'dashboard':
-          return <DashboardOverview />;
-        case 'daily-report':
-          return <DailyReport />;
-        default:
-          // Redirect viewer to dashboard if trying to access restricted sections
-          setActiveSection('dashboard');
-          return <DashboardOverview />;
-      }
-    }
-    
-    // Operator role restrictions
-    if (user.role === 'operator') {
-      switch (activeSection) {
-        case 'dashboard':
-          return <DashboardOverview />;
-        case 'latest-data':
-          return <LatestData />;
-        case 'map':
-          return <VesselMap />;
-        case 'tracking':
-          return <VesselTracking />;
-        case 'data-history':
-          return <DataHistory />;
-        case 'daily-report':
-          return <DailyReport />;
-        default:
-          // Redirect operator to dashboard if trying to access configuration
-          if (['users', 'vessels', 'vessel-types', 'settings'].includes(activeSection)) {
-            setActiveSection('dashboard');
-            return <DashboardOverview />;
-          }
-          return <DashboardOverview />;
-      }
-    }
-    
-    // Admin role - full access
     switch (activeSection) {
       case 'dashboard':
         return <DashboardOverview />;

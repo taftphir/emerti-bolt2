@@ -16,7 +16,6 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { useSystemConfig } from '../../contexts/SystemConfigContext';
-import { useAuth } from '../../contexts/AuthContext';
 
 interface SidebarProps {
   activeSection: string;
@@ -49,7 +48,6 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
     configuration: false
   });
   const { config } = useSystemConfig();
-  const { user } = useAuth();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -79,48 +77,6 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
     }));
   };
 
-  // Filter menu items based on user role
-  const getFilteredMenuItems = () => {
-    if (!user) return [];
-    
-    if (user.role === 'viewer') {
-      // Viewer can only see dashboard and daily report
-      return menuItems.filter(item => 
-        item.id === 'dashboard' || item.id === 'daily-report'
-      );
-    }
-    
-    if (user.role === 'operator') {
-      // Operator can see all monitoring features but no configuration
-      return menuItems.filter(item => 
-        !item.parent || item.parent !== 'configuration'
-      );
-    }
-    
-    // Admin can see everything
-    return menuItems;
-  };
-
-  // Filter sections based on user role
-  const getFilteredSections = () => {
-    if (!user) return {};
-    
-    // if (user.role === 'viewer') { 
-    //   // Viewer has no sections (only top-level items)
-    //   return {};
-    // }
-    
-    // if (user.role === 'operator') {
-    //   // Operator can only see monitoring section
-    //   return { monitoring: 'Monitoring' };
-    // }
-    
-    // Admin can see all sections
-    return sections;
-  };
-
-  const filteredMenuItems = getFilteredMenuItems();
-  const filteredSections = getFilteredSections();
   return (
     <>
       {/* Mobile menu button */}
@@ -164,7 +120,7 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
         </div>
         
         <nav className={isCollapsed ? 'mt-4' : ''}>
-        {filteredMenuItems.map((item) => {
+        {menuItems.map((item) => {
           if (!item.parent) {
             return (
               <button
@@ -190,7 +146,7 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
           return null;
         })}
 
-        {Object.entries(filteredSections).map(([sectionId, sectionLabel]) => (
+        {Object.entries(sections).map(([sectionId, sectionLabel]) => (
           <div key={sectionId} className="mt-6">
             {!isCollapsed ? (
               <button
@@ -206,7 +162,7 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
             ) : (
               <div className="border-t border-blue-700 mx-2 mb-2 hidden lg:block"></div>
             )}
-            {(isCollapsed || expandedSections[sectionId]) && filteredMenuItems
+            {(isCollapsed || expandedSections[sectionId]) && menuItems
               .filter(item => item.parent === sectionId)
               .map(item => (
                 <button
