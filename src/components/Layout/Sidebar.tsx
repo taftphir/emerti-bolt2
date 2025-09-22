@@ -3,6 +3,7 @@ import {
   BarChart3, 
   Map, 
   Activity, 
+  Fuel, 
   FileBarChart,
   TrendingUp,
   Settings, 
@@ -25,7 +26,7 @@ interface SidebarProps {
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
   { id: 'daily-report', label: 'Daily Report', icon: TrendingUp },
-  { id: 'fuel-monitoring', label: 'Fuel Monitoring', icon: Activity, parent: 'monitoring' },
+  { id: 'fuel-monitoring', label: 'Fuel Monitoring', icon: Fuel, parent: 'monitoring' },
   { id: 'latest-data', label: 'Latest Data', icon: Activity, parent: 'monitoring' },
   { id: 'map', label: 'Map Lokasi', icon: Map, parent: 'monitoring' },
   { id: 'tracking', label: 'Vessel Tracking', icon: NavigationIcon, parent: 'monitoring' },
