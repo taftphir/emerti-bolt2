@@ -28,7 +28,7 @@ const menuItems = [
   { id: 'daily-report', label: 'Daily Report', icon: TrendingUp },
   { id: 'fuel-monitoring', label: 'Fuel Monitoring', icon: Activity, parent: 'monitoring' },
   { id: 'latest-data', label: 'Latest Data', icon: AirPlay, parent: 'monitoring' },
-  { id: 'map', label: 'Map Lokasi', icon: Map, parent: 'monitoring' },
+  { id: 'map', label: 'Map Lokasi', icon: Map, parent: 'monitoring' }, 
   { id: 'tracking', label: 'Vessel Tracking', icon: NavigationIcon, parent: 'monitoring' },
   { id: 'data-history', label: 'Data History', icon: BarChart3, parent: 'monitoring' },
   { id: 'users', label: 'User Management', icon: Users, parent: 'configuration' },
