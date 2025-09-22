@@ -10,6 +10,7 @@ import VesselMap from './components/Monitoring/VesselMap';
 import VesselTracking from './components/Monitoring/VesselTracking';
 import DataHistory from './components/Monitoring/DataHistory';
 import DailyReport from './components/Monitoring/DailyReport';
+import FuelMonitoring from './components/Monitoring/FuelMonitoring';
 import UserManagement from './components/Configuration/UserManagement';
 import VesselManagement from './components/Configuration/VesselManagement';
 import VesselTypeManagement from './components/Configuration/VesselTypeManagement';
@@ -48,6 +49,8 @@ function MainApp() {
         return <DataHistory />;
       case 'daily-report':
         return <DailyReport />;
+      case 'fuel-monitoring':
+        return <FuelMonitoring />;
       case 'users':
         return <UserManagement />;
       case 'vessels':

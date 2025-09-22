@@ -43,6 +43,11 @@ export default function Header({ activeSection }: HeaderProps) {
           title: 'Daily Report',
           subtitle: 'Performance analysis and trend visualization'
         };
+      case 'fuel-monitoring':
+        return {
+          title: 'Fuel Monitoring',
+          subtitle: 'Comprehensive fuel tank condition and consumption analysis'
+        };
       case 'users':
         return {
           title: 'User Management',
