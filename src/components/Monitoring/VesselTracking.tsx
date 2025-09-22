@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import { Icon, divIcon } from 'leaflet';
 import { MapPin, Navigation as NavigationIcon, Clock, Route, Calendar, Download, ArrowLeft, X } from 'lucide-react';
 import { mockVessels, getHistoryData } from '../../data/mockData';
 import { Vessel, HistoryRecord } from '../../types/vessel';
+import 'leaflet/dist/leaflet.css';
+
+// Fix for default markers in react-leaflet
+delete (Icon.Default.prototype as any)._getIconUrl;
+Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 interface VesselTrackingProps {
   selectedVesselId?: string;
@@ -17,14 +28,6 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<HistoryRecord | null>(null);
-
-  // Map bounds for tracking area
-  const mapBounds = {
-    north: -6.0,
-    south: -8.5,
-    east: 115.0,
-    west: 111.5
-  };
 
   useEffect(() => {
     // Get tracking data for selected vessel and date
@@ -49,23 +52,47 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
     return () => clearTimeout(timer);
   }, []);
 
-  // Convert lat/lng to pixel position within the map container
-  const latLngToPixel = (lat: number, lng: number) => {
-    const x = ((lng - mapBounds.west) / (mapBounds.east - mapBounds.west)) * 100;
-    const y = ((mapBounds.north - lat) / (mapBounds.north - mapBounds.south)) * 100;
-    return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
-  };
-
-  // Generate SVG path for the journey
-  const generateJourneyPath = () => {
-    if (trackingData.length < 2) return '';
+  const createTrackingPointIcon = (record: HistoryRecord, index: number, isStart: boolean, isEnd: boolean) => {
+    const pointColor = isStart ? '#10b981' : isEnd ? '#ef4444' : '#3b82f6';
+    const pointSize = isStart || isEnd ? 16 : 12;
     
-    const pathPoints = trackingData.map(record => {
-      const pixel = latLngToPixel(record.latitude, record.longitude);
-      return `${pixel.x},${pixel.y}`;
+    return divIcon({
+      html: `
+        <div style="position: relative; width: 32px; height: 32px;">
+          <!-- Heading arrow -->
+          <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(${record.heading}deg);
+            width: 24px;
+            height: 24px;
+            opacity: 0.7;
+            z-index: 1;
+          ">
+            <img src="/arrow.png" alt="Heading" style="width: 24px; height: 24px;" />
+          </div>
+          <!-- Point marker -->
+          <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: ${pointSize}px;
+            height: ${pointSize}px;
+            background: ${pointColor};
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            z-index: 2;
+          "></div>
+        </div>
+      `,
+      className: 'tracking-point-marker',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -16]
     });
-    
-    return `M ${pathPoints.join(' L ')}`;
   };
 
   const getStatusColor = (status: string) => {
@@ -217,115 +244,78 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
         <div className={showDetails ? 'lg:col-span-2' : ''}>
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="h-[70vh] lg:h-[80vh] relative">
-              {/* OpenStreetMap iframe */}
-              <iframe
-                src="https://www.openstreetmap.org/export/embed.html?bbox=111.5%2C-8.5%2C115.0%2C-6.0&layer=mapnik&marker=-7.2364197%2C113.3032598"
-                className="w-full h-full border-0"
-                title="Vessel Tracking Map"
-                onLoad={() => setMapLoaded(true)}
-              />
-              
-              {/* Loading overlay */}
-              {!mapLoaded && (
-                <div className="absolute inset-0 bg-blue-50 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                    <p className="text-sm text-gray-600">Loading tracking map...</p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Journey path and markers overlay */}
-              <div className="absolute inset-0 pointer-events-none">
-                <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  {/* Journey path */}
-                  {trackingData.length > 1 && (
-                    <path
-                      d={generateJourneyPath()}
-                      stroke="#3b82f6"
-                      strokeWidth="0.2"
-                      fill="none"
-                      strokeDasharray="0.5,0.3"
-                      opacity="0.8"
-                    />
-                  )}
-                </svg>
+              <MapContainer
+                center={trackingData.length > 0 ? [trackingData[0].latitude, trackingData[0].longitude] : [-7.2, 113.8]}
+                zoom={10}
+                style={{ height: '100%', width: '100%' }}
+                className="z-0"
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                
+                {/* Journey path */}
+                {trackingData.length > 1 && (
+                  <Polyline
+                    positions={trackingData.map(record => [record.latitude, record.longitude])}
+                    color="#3b82f6"
+                    weight={3}
+                    opacity={0.8}
+                    dashArray="10,5"
+                  />
+                )}
                 
                 {/* Tracking points */}
                 {trackingData.map((record, index) => {
-                  const position = latLngToPixel(record.latitude, record.longitude);
                   const isStart = index === 0;
                   const isEnd = index === trackingData.length - 1;
                   
                   return (
-                    <React.Fragment key={record.id}>
-                      <div
-                        className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer pointer-events-auto group z-10"
-                      style={{
-                        left: `${position.x}%`,
-                        top: `${position.y}%`,
+                    <Marker
+                      key={record.id}
+                      position={[record.latitude, record.longitude]}
+                      icon={createTrackingPointIcon(record, index, isStart, isEnd)}
+                      eventHandlers={{
+                        click: () => setSelectedPoint(record)
                       }}
-                      onClick={() => setSelectedPoint(record)}
-                      >
-                      {/* Marker */}
-                      <div className="relative">
-                        {/* Heading arrow */}
-                        <div 
-                          className="absolute w-8 h-8 pointer-events-none z-0"
-                          style={{ 
-                            transform: `rotate(${record.heading}deg)`,
-                            transformOrigin: 'center center',
-                            left: '-50%',
-                            top: '-50%'
-                          }}
-                        >
-                          {/* Arrow image */}
-                          <img 
-                            src="/arrow.png" 
-                            alt="Heading direction"
-                            className="w-8 h-8 opacity-70"
-                          />
-                        </div>
-                      
-                        {/* Point marker */}
-                        <div className={`relative p-1 rounded-full border-2 shadow-lg transition-transform hover:scale-110 z-10 ${
-                          isStart ? 'bg-green-500 border-green-600' :
-                          isEnd ? 'bg-red-500 border-red-600' :
-                          'bg-blue-500 border-blue-600'
-                        }`}>
-                          <div className={`${
-                            isStart || isEnd ? 'w-3 h-3 sm:w-4 sm:h-4' : 'w-2 h-2 sm:w-2.5 sm:h-2.5'
-                          } rounded-full bg-white`}></div>
-                        </div>
-                      </div>
-                        
-                        {/* Quick info tooltip */}
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
-                          <div>Point {index + 1} of {trackingData.length}</div>
-                          <div>{record.timestamp.toLocaleTimeString()}</div>
-                          <div>{record.speed.toFixed(1)} kts • {record.heading}°</div>
-                          <div className="text-xs opacity-75">Click for details</div>
-                        </div>
-                      </div>
-                      
-                      {/* Time label for start/end points */}
-                      {(isStart || isEnd) && (
-                        <div className={`absolute ${isStart ? '-bottom-10' : '-top-10'} left-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded px-2 py-1 shadow-sm z-10`}>
-                          <span className="text-xs font-medium text-gray-800">
-                            {isStart ? 'START' : 'END'}
-                          </span>
-                          <div className="text-xs text-gray-600">
-                            {record.timestamp.toLocaleTimeString()}
+                    >
+                      <Popup>
+                        <div className="p-2 min-w-48">
+                          <h4 className="text-base font-semibold text-gray-800 mb-2">
+                            Tracking Point {index + 1}
+                            {isStart && <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">START</span>}
+                            {isEnd && <span className="ml-2 text-xs bg-red-100 text-red-800 px-2 py-1 rounded">END</span>}
+                          </h4>
+                          <div className="text-sm text-gray-600 space-y-1">
+                            <div className="flex justify-between">
+                              <span>Time:</span>
+                              <span className="font-medium">{record.timestamp.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Speed:</span>
+                              <span className="font-medium">{record.speed.toFixed(1)} kts</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Heading:</span>
+                              <span className="font-medium">{record.heading.toFixed(1)}°</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Position:</span>
+                              <span className="font-medium text-xs">
+                                {record.latitude.toFixed(6)}, {record.longitude.toFixed(6)}
+                              </span>
+                            </div>
                           </div>
-                      </div>
-                      )}
-                    </React.Fragment>
+                        </div>
+                      </Popup>
+                    </Marker>
                   );
                 })}
-              </div>
+              </MapContainer>
               
               {/* Legend */}
-              <div className="absolute top-4 left-4 bg-white rounded-lg shadow-sm p-3">
+              <div className="absolute top-4 left-4 bg-white rounded-lg shadow-sm p-3 z-10">
                 <h4 className="text-sm font-semibold text-gray-800 mb-2">Journey Legend</h4>
                 <div className="space-y-1 text-xs">
                   <div className="flex items-center space-x-2">
@@ -372,7 +362,7 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
               </div>
 
               {/* Journey Stats */}
-              <div className="absolute bottom-4 right-4 bg-white rounded-lg shadow-sm p-3">
+              <div className="absolute bottom-4 right-4 bg-white rounded-lg shadow-sm p-3 z-10">
                 <h4 className="text-sm font-semibold text-gray-800 mb-2">Journey Stats</h4>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
@@ -400,18 +390,6 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
                     </span>
                   </div>
                 </div>
-              </div>
-
-              {/* OpenStreetMap attribution */}
-              <div className="absolute bottom-2 left-2 bg-white bg-opacity-80 rounded px-2 py-1">
-                <a 
-                  href="https://www.openstreetmap.org/copyright" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-600 hover:underline"
-                >
-                  © OpenStreetMap
-                </a>
               </div>
             </div>
           </div>
