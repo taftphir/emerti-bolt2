@@ -71,7 +71,7 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
             border: 2px solid white;
             border-radius: 50%;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            z-index: 2;
+            z-index: 0;
           "></div>
           <!-- Heading arrow -->
           <div style="
