@@ -210,7 +210,7 @@ export default function FuelMonitoring() {
       ['Timestamp', 'Vessel', 'Fuel Level (%)', 'Current Fuel (L)', 'Consumption (L/h)', 'Efficiency (km/L)', 'Range (km)', 'Latitude', 'Longitude'],
       ...fuelData.map(data => [
         data.timestamp.toISOString(),
-        data.vesselName,
+        data.vesselName, 
         data.fuelLevel.toFixed(1),
         data.currentFuel.toFixed(0),
         data.consumption.toFixed(1),
