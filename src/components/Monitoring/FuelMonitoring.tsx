@@ -207,7 +207,7 @@ export default function FuelMonitoring() {
 
   const exportFuelReport = () => {
     const csvContent = [
-      ['Timestamp', 'Vessel', 'Fuel Level (%)', 'Current Fuel (L)', 'Consumption (L/h)', 'Efficiency (mile/L)', 'Range (km)', 'Latitude', 'Longitude'],
+      ['Timestamp', 'Vessel', 'Fuel Level (%)', 'Current Fuel (L)', 'Consumption (L/h)', 'Efficiency (km/L)', 'Range (km)', 'Latitude', 'Longitude'],
       ...fuelData.map(data => [
         data.timestamp.toISOString(),
         data.vesselName,
