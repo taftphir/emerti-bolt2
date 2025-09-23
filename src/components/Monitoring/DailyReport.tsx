@@ -39,9 +39,60 @@ export default function DailyReport() {
   const rpmData = getChartData('rpm');
   const fuelData = getChartData('fuel');
 
+  // Get vessel type specifications for recommendations
+  const getVesselSpecs = (vesselType: string) => {
+    switch (vesselType) {
+      case 'Tanker':
+        return { 
+          minSpeed: 8, maxSpeed: 18, optimalSpeed: 12,
+          minRPM: 800, maxRPM: 2200, optimalRPM: 1500
+        };
+      case 'Container':
+        return { 
+          minSpeed: 12, maxSpeed: 25, optimalSpeed: 18,
+          minRPM: 1200, maxRPM: 2800, optimalRPM: 2000
+        };
+      case 'Cargo':
+        return { 
+          minSpeed: 10, maxSpeed: 20, optimalSpeed: 15,
+          minRPM: 1000, maxRPM: 2500, optimalRPM: 1800
+        };
+      case 'Ferry':
+        return { 
+          minSpeed: 8, maxSpeed: 22, optimalSpeed: 16,
+          minRPM: 900, maxRPM: 2400, optimalRPM: 1600
+        };
+      default:
+        return { 
+          minSpeed: 8, maxSpeed: 20, optimalSpeed: 14,
+          minRPM: 800, maxRPM: 2500, optimalRPM: 1650
+        };
+    }
+  };
+
+  const vesselSpecs = getVesselSpecs(selectedVessel.type);
+
   const renderChart = (chartData: any, title: string) => {
     const maxValue = Math.max(...chartData.data);
     const minValue = Math.min(...chartData.data);
+    
+    // Determine if this is speed or RPM chart for recommendations
+    const isSpeedChart = title.toLowerCase().includes('speed');
+    const isRPMChart = title.toLowerCase().includes('rpm');
+    
+    let recommendedMin = minValue;
+    let recommendedMax = maxValue;
+    let optimalValue = (maxValue + minValue) / 2;
+    
+    if (isSpeedChart) {
+      recommendedMin = vesselSpecs.minSpeed;
+      recommendedMax = vesselSpecs.maxSpeed;
+      optimalValue = vesselSpecs.optimalSpeed;
+    } else if (isRPMChart) {
+      recommendedMin = vesselSpecs.minRPM;
+      recommendedMax = vesselSpecs.maxRPM;
+      optimalValue = vesselSpecs.optimalRPM;
+    }
 
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
@@ -71,6 +122,57 @@ export default function DailyReport() {
           </div>
         </div>
         
+        {/* Recommendations for Speed and RPM charts */}
+        {(isSpeedChart || isRPMChart) && (
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <h4 className="text-sm font-semibold text-blue-800 mb-2">
+              📊 Rekomendasi untuk {selectedVessel.type}
+            </h4>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="text-center">
+                <div className="text-blue-600">Min Optimal</div>
+                <div className="font-bold text-blue-800">
+                  {recommendedMin.toFixed(0)}{isSpeedChart ? ' kts' : ' rpm'}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-blue-600">Optimal</div>
+                <div className="font-bold text-blue-800">
+                  {optimalValue.toFixed(0)}{isSpeedChart ? ' kts' : ' rpm'}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-blue-600">Max Optimal</div>
+                <div className="font-bold text-blue-800">
+                  {recommendedMax.toFixed(0)}{isSpeedChart ? ' kts' : ' rpm'}
+                </div>
+              </div>
+            </div>
+            <div className="mt-2 text-xs text-blue-700">
+              {isSpeedChart && (
+                <>
+                  {(chartData.data.reduce((a: number, b: number) => a + b, 0) / chartData.data.length) < recommendedMin ? 
+                    '⚠️ Kecepatan rata-rata di bawah optimal' :
+                    (chartData.data.reduce((a: number, b: number) => a + b, 0) / chartData.data.length) > recommendedMax ?
+                    '⚠️ Kecepatan rata-rata di atas optimal' :
+                    '✅ Kecepatan dalam rentang optimal'
+                  }
+                </>
+              )}
+              {isRPMChart && (
+                <>
+                  {(chartData.data.reduce((a: number, b: number) => a + b, 0) / chartData.data.length) < recommendedMin ? 
+                    '⚠️ RPM rata-rata di bawah optimal' :
+                    (chartData.data.reduce((a: number, b: number) => a + b, 0) / chartData.data.length) > recommendedMax ?
+                    '⚠️ RPM rata-rata di atas optimal' :
+                    '✅ RPM dalam rentang optimal'
+                  }
+                </>
+              )}
+            </div>
+          </div>
+        )}
+        
         <div className="h-48 sm:h-64 relative overflow-x-auto">
           <svg className="w-full h-full min-w-96" viewBox="0 0 800 240">
             {/* Grid lines */}
@@ -85,6 +187,34 @@ export default function DailyReport() {
                 strokeWidth="1"
               />
             ))}
+            
+            {/* Recommendation zones for Speed and RPM charts */}
+            {(isSpeedChart || isRPMChart) && (
+              <>
+                {/* Optimal range background */}
+                <rect
+                  x="60"
+                  y={40 + (160 * (maxValue - recommendedMax)) / (maxValue - minValue)}
+                  width="700"
+                  height={(160 * (recommendedMax - recommendedMin)) / (maxValue - minValue)}
+                  fill="rgba(34, 197, 94, 0.1)"
+                  stroke="rgba(34, 197, 94, 0.3)"
+                  strokeWidth="1"
+                  strokeDasharray="5,5"
+                />
+                
+                {/* Optimal line */}
+                <line
+                  x1="60"
+                  y1={40 + (160 * (maxValue - optimalValue)) / (maxValue - minValue)}
+                  x2="760"
+                  y2={40 + (160 * (maxValue - optimalValue)) / (maxValue - minValue)}
+                  stroke="#22c55e"
+                  strokeWidth="2"
+                  strokeDasharray="10,5"
+                />
+              </>
+            )}
             
             {/* Y-axis labels */}
             {[0, 1, 2, 3, 4].map((i) => (

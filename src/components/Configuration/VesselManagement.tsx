@@ -19,9 +19,29 @@ export default function VesselManagement() {
     emsActive: true,
     fmsActive: true,
     vesselKey: '',
+    minSpeed: 0,
+    maxSpeed: 0,
+    minRPM: 0,
+    maxRPM: 0,
   });
 
+  // Get default specs based on vessel type
+  const getDefaultSpecs = (vesselType: string) => {
+    switch (vesselType) {
+      case 'Tanker':
+        return { minSpeed: 8, maxSpeed: 18, minRPM: 800, maxRPM: 2200 };
+      case 'Container':
+        return { minSpeed: 12, maxSpeed: 25, minRPM: 1200, maxRPM: 2800 };
+      case 'Cargo':
+        return { minSpeed: 10, maxSpeed: 20, minRPM: 1000, maxRPM: 2500 };
+      case 'Ferry':
+        return { minSpeed: 8, maxSpeed: 22, minRPM: 900, maxRPM: 2400 };
+      default:
+        return { minSpeed: 8, maxSpeed: 20, minRPM: 800, maxRPM: 2500 };
+    }
+  };
   const handleAdd = () => {
+    const defaultSpecs = getDefaultSpecs('Cargo');
     setEditingVessel(null);
     setFormData({
       name: '',
@@ -33,6 +53,10 @@ export default function VesselManagement() {
       emsActive: true,
       fmsActive: true,
       vesselKey: '',
+      minSpeed: defaultSpecs.minSpeed,
+      maxSpeed: defaultSpecs.maxSpeed,
+      minRPM: defaultSpecs.minRPM,
+      maxRPM: defaultSpecs.maxRPM,
     });
     setImageFile(null);
     setImagePreview('');
@@ -40,6 +64,7 @@ export default function VesselManagement() {
   };
 
   const handleEdit = (vessel: Vessel) => {
+    const defaultSpecs = getDefaultSpecs(vessel.type);
     setEditingVessel(vessel);
     setFormData({
       name: vessel.name,
@@ -51,12 +76,28 @@ export default function VesselManagement() {
       emsActive: vessel.emsActive,
       fmsActive: vessel.fmsActive,
       vesselKey: vessel.vesselKey,
+      minSpeed: (vessel as any).minSpeed || defaultSpecs.minSpeed,
+      maxSpeed: (vessel as any).maxSpeed || defaultSpecs.maxSpeed,
+      minRPM: (vessel as any).minRPM || defaultSpecs.minRPM,
+      maxRPM: (vessel as any).maxRPM || defaultSpecs.maxRPM,
     });
     setImageFile(null);
     setImagePreview(vessel.image || '');
     setShowModal(true);
   };
 
+  // Handle vessel type change to update default specs
+  const handleTypeChange = (newType: string) => {
+    const defaultSpecs = getDefaultSpecs(newType);
+    setFormData(prev => ({
+      ...prev,
+      type: newType,
+      minSpeed: defaultSpecs.minSpeed,
+      maxSpeed: defaultSpecs.maxSpeed,
+      minRPM: defaultSpecs.minRPM,
+      maxRPM: defaultSpecs.maxRPM,
+    }));
+  };
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -171,6 +212,9 @@ export default function VesselManagement() {
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
+                  Specifications
+                </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   Sensors
                 </th>
@@ -211,6 +255,22 @@ export default function VesselManagement() {
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(vessel.status)}`}>
                       {vessel.status}
                     </span>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden xl:table-cell">
+                    <div className="text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Speed:</span>
+                        <span className="font-medium">
+                          {(vessel as any).minSpeed || getDefaultSpecs(vessel.type).minSpeed}-{(vessel as any).maxSpeed || getDefaultSpecs(vessel.type).maxSpeed} kts
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">RPM:</span>
+                        <span className="font-medium">
+                          {(vessel as any).minRPM || getDefaultSpecs(vessel.type).minRPM}-{(vessel as any).maxRPM || getDefaultSpecs(vessel.type).maxRPM}
+                        </span>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                     <div className="flex space-x-2">
@@ -299,7 +359,7 @@ export default function VesselManagement() {
                     </label>
                     <select
                       value={formData.type}
-                      onChange={(e) => setFormData({...formData, type: e.target.value})}
+                      onChange={(e) => handleTypeChange(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="Cargo">Cargo</option>
@@ -416,6 +476,74 @@ export default function VesselManagement() {
                 </div>
               </div>
 
+              {/* Vessel Specifications */}
+              <div>
+                <h4 className="text-md font-semibold text-gray-800 mb-4">Vessel Specifications</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Minimum Speed (knots) *
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="50"
+                      value={formData.minSpeed}
+                      onChange={(e) => setFormData({...formData, minSpeed: parseInt(e.target.value) || 0})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Maximum Speed (knots) *
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="50"
+                      value={formData.maxSpeed}
+                      onChange={(e) => setFormData({...formData, maxSpeed: parseInt(e.target.value) || 0})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Minimum RPM *
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="5000"
+                      value={formData.minRPM}
+                      onChange={(e) => setFormData({...formData, minRPM: parseInt(e.target.value) || 0})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Maximum RPM *
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="5000"
+                      value={formData.maxRPM}
+                      onChange={(e) => setFormData({...formData, maxRPM: parseInt(e.target.value) || 0})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Spesifikasi ini akan digunakan untuk rekomendasi optimal di Daily Report
+                </p>
+              </div>
               {/* Sensor Configuration */}
               <div>
                 <h4 className="text-md font-semibold text-gray-800 mb-4">Sensor Configuration</h4>
