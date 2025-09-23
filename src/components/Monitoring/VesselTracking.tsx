@@ -59,19 +59,6 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
     return divIcon({
       html: `
         <div style="position: relative; width: 32px; height: 32px;">
-          <!-- Heading arrow -->
-          <div style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(${record.heading}deg);
-            width: 24px;
-            height: 24px;
-            opacity: 0.7;
-            z-index: 1;
-          ">
-            <img src="/arrow.png" alt="Heading" style="width: 24px; height: 24px;" />
-          </div>
           <!-- Point marker -->
           <div style="
             position: absolute;
@@ -86,6 +73,19 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             z-index: 2;
           "></div>
+          <!-- Heading arrow -->
+          <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(${record.heading}deg);
+            width: 24px;
+            height: 24px;
+            opacity: 0.7;
+            z-index: 1;
+          ">
+            <img src="/arrow.png" alt="Heading" style="width: 24px; height: 24px;" />
+          </div>
         </div>
       `,
       className: 'tracking-point-marker',
