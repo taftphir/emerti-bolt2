@@ -153,7 +153,7 @@ export default function FuelMonitoring() {
           vesselName: data.vesselName,
           type: 'efficiency-drop',
           severity: 'warning',
-          message: `Fuel efficiency dropped to ${data.efficiency.toFixed(2)} km/L`,
+          message: `Fuel efficiency dropped to ${data.efficiency.toFixed(2)} mile/L`,
           timestamp: data.timestamp,
           location: data.location
         });
@@ -167,7 +167,7 @@ export default function FuelMonitoring() {
           vesselName: data.vesselName,
           type: 'refuel-needed',
           severity: data.estimatedRange < 20 ? 'critical' : 'warning',
-          message: `Estimated range: ${data.estimatedRange.toFixed(0)} km - Refuel recommended`,
+          message: `Estimated range: ${data.estimatedRange.toFixed(0)} mile - Refuel recommended`,
           timestamp: data.timestamp,
           location: data.location
         });
@@ -207,7 +207,7 @@ export default function FuelMonitoring() {
 
   const exportFuelReport = () => {
     const csvContent = [
-      ['Timestamp', 'Vessel', 'Fuel Level (%)', 'Current Fuel (L)', 'Consumption (L/h)', 'Efficiency (km/L)', 'Range (km)', 'Latitude', 'Longitude'],
+      ['Timestamp', 'Vessel', 'Fuel Level (%)', 'Current Fuel (L)', 'Consumption (L/h)', 'Efficiency (mile/L)', 'Range (mile)', 'Latitude', 'Longitude'],
       ...fuelData.map(data => [
         data.timestamp.toISOString(),
         data.vesselName,
@@ -444,7 +444,7 @@ export default function FuelMonitoring() {
           <p className="text-2xl font-bold text-gray-800">
             {latestData ? `${latestData.efficiency.toFixed(1)}` : 'N/A'}
           </p>
-          <p className="text-sm text-gray-500">km/L</p>
+          <p className="text-sm text-gray-500">mile/L</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
@@ -455,7 +455,7 @@ export default function FuelMonitoring() {
           <p className="text-2xl font-bold text-gray-800">
             {latestData ? `${latestData.estimatedRange.toFixed(0)}` : 'N/A'}
           </p>
-          <p className="text-sm text-gray-500">km</p>
+          <p className="text-sm text-gray-500">mile</p>
         </div>
       </div>
 
@@ -475,7 +475,7 @@ export default function FuelMonitoring() {
               </div>
               <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
                 <span className="text-sm font-medium text-gray-700">Average Efficiency</span>
-                <span className="text-lg font-bold text-green-600">{avgData.avgEfficiency.toFixed(2)} km/L</span>
+                <span className="text-lg font-bold text-green-600">{avgData.avgEfficiency.toFixed(2)} mile/L</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
                 <span className="text-sm font-medium text-gray-700">Total Fuel Used</span>
@@ -599,10 +599,10 @@ export default function FuelMonitoring() {
                     {data.consumption.toFixed(1)} L/h
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {data.efficiency.toFixed(2)} km/L
+                    {data.efficiency.toFixed(2)} mile/L
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {data.estimatedRange.toFixed(0)} km
+                    {data.estimatedRange.toFixed(0)} mile
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {data.location.lat.toFixed(4)}, {data.location.lng.toFixed(4)}
