@@ -71,11 +71,11 @@ export default function VesselTracking({ selectedVesselId, onBack }: VesselTrack
             border: 2px solid white;
             border-radius: 50%;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            z-index: 0;
+            z-index: 2;
           "></div>
           <!-- Heading arrow -->
           <div style="
-            position: absolute;
+            position: absolute; 
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(${record.heading}deg);
