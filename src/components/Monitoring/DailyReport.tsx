@@ -54,7 +54,7 @@ export default function DailyReport() {
         };
       case 'Cargo':
         return { 
-          minSpeed: 10, maxSpeed: 20, optimalSpeed: 13,
+          minSpeed: 5, maxSpeed: 15, optimalSpeed: 13,
           minRPM: 1000, maxRPM: 2500, optimalRPM: 1800
         };
       case 'Ferry':
