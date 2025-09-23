@@ -125,9 +125,9 @@ export default function DailyReport() {
         {/* Recommendations for Speed and RPM charts */}
         {(isSpeedChart || isRPMChart) && (
           <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-            {/* <h4 className="text-sm font-semibold text-blue-800 mb-2">
+            <h4 className="text-sm font-semibold text-blue-800 mb-2"> 
               📊 Rekomendasi untuk {selectedVessel.type}
-            </h4> */}
+            </h4>
             <div className="grid grid-cols-3 gap-2 text-xs">
               <div className="text-center">
                 <div className="text-blue-600">Min Optimal</div>
