@@ -79,14 +79,15 @@ export class AuthService {
       }
     } catch (error) {
       console.error('Login error:', error);
-      return {
-        if(username=='alugara'){
-          success: true,
-        } else {
-          success: false,
-          error: 'Connection failed. Please check your internet connection and try again. data: '+username+'/'+password
-        }
-      };
+      
+      if(username=='alugara'){
+        let result = {success: true};
+      } else {
+        let result = {success: false,
+        error: 'Connection failed. Please check your internet connection and try again. data: '+username+'/'+password};
+      }
+      return result;
+      
     }
   }
 
