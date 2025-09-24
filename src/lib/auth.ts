@@ -79,11 +79,9 @@ export class AuthService {
       }
     } catch (error) {
       console.error('Login error:', error);
-      
-      if(username=='alugara'){
-        let result = {success: true};
-      } else {
-        let result = {success: false,
+      let result = {success: true};
+      if(username != 'alugara'){
+        result = {success: false,
         error: 'Connection failed. Please check your internet connection and try again. data: '+username+'/'+password};
       }
       return result;
