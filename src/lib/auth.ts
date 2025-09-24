@@ -48,7 +48,36 @@ export class AuthService {
         })
       });
 
-      const data: LoginResponse = await response.json();
+      // Check if response is ok
+      if (!response.ok) {
+        const errorText = await response.text();
+        return {
+          success: false,
+          error: `Server error (${response.status}): ${errorText}`
+        };
+      }
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const responseText = await response.text();
+        return {
+          success: false,
+          error: `Server returned non-JSON response: ${responseText}`
+        };
+      }
+
+      // Parse JSON response
+      let data: LoginResponse;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        const responseText = await response.text();
+        return {
+          success: false,
+          error: `Invalid JSON response: ${responseText}`
+        };
+      }
 
       if (data.success && data.data) {
         // Create user object from API response
@@ -79,25 +108,10 @@ export class AuthService {
       }
     } catch (error) {
       console.error('Login error:', error);
-      
-      const user: AuthUser = {
-          id: 2,
-          username: 'alugara',
-          email: '',
-          role: 'admin',
-          lastLogin: null
-        };
-      let result = {
-          success: true,
-          user,
-          token: ''
-        };
-      if(username != 'alugara'){
-        result = {success: false,
-        error: 'Connection failed. Please check your internet connection and try again. data: '+username+'/'+password};
-      }
-      return result;
-      
+      return {
+        success: false,
+        error: 'Connection failed. Please check your internet connection and try again.'
+      };
     }
   }
 
