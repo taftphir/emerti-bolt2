@@ -2,7 +2,7 @@
 
 import { AuthService } from './auth';
 
-const API_BASE_URL = 'http://103.94.238.6:8080';
+const API_BASE_URL = '/api';
 
 export interface ApiResponse<T = any> {
   success: boolean;

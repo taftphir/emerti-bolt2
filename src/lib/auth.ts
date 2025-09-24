@@ -30,7 +30,7 @@ export interface LoginResponse {
 
 export class AuthService {
   private static readonly SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
-  private static readonly API_BASE_URL = 'http://103.94.238.6:8080';
+  private static readonly API_BASE_URL = '/api';
   private static sessionTimer: NodeJS.Timeout | null = null;
 
   // Login user
