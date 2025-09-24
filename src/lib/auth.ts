@@ -1,6 +1,3 @@
-import bcrypt from 'bcryptjs';
-import { UserDatabase, DatabaseUser } from './database';
-
 export interface AuthUser {
   id: number;
   username: string;
@@ -16,90 +13,93 @@ export interface LoginResult {
   token?: string;
 }
 
+export interface LoginResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    user: {
+      id: number;
+      username: string;
+      email: string;
+      role: string;
+      last_login: string | null;
+    };
+    jwt_token: string;
+  };
+}
+
 export class AuthService {
   private static readonly SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
+  private static readonly API_BASE_URL = 'http://103.94.238.6:8080';
   private static sessionTimer: NodeJS.Timeout | null = null;
 
   // Login user
   static async login(username: string, password: string): Promise<LoginResult> {
     try {
-      // Get user from database
-      const dbUser = await UserDatabase.getUserByUsername(username);
-      if (!dbUser) {
+      // Call backend API
+      const response = await fetch(`${this.API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password
+        })
+      });
+
+      const data: LoginResponse = await response.json();
+
+      if (data.success && data.data) {
+        // Create user object from API response
+        const user: AuthUser = {
+          id: data.data.user.id,
+          username: data.data.user.username,
+          email: data.data.user.email,
+          role: data.data.user.role,
+          lastLogin: data.data.user.last_login ? new Date(data.data.user.last_login) : null
+        };
+
+        // Store JWT token and session
+        this.storeSession(user, data.data.jwt_token);
+
+        // Start session timeout
+        this.startSessionTimeout();
+
+        return {
+          success: true,
+          user,
+          token: data.data.jwt_token
+        };
+      } else {
         return {
           success: false,
-          error: 'Invalid username or password'
+          error: data.message || 'Login failed'
         };
       }
-
-      // Verify password
-      const isValidPassword = await bcrypt.compare(password, dbUser.password_hash);
-      if (!isValidPassword) {
-        return {
-          success: false,
-          error: 'Invalid username or password'
-        };
-      }
-
-      // Update last login
-      await UserDatabase.updateLastLogin(dbUser.id);
-
-      // Create user object
-      const user: AuthUser = {
-        id: dbUser.id,
-        username: dbUser.username,
-        email: dbUser.email,
-        role: dbUser.role,
-        lastLogin: new Date()
-      };
-
-      // Generate session token
-      const token = this.generateSessionToken(user);
-
-      // Store session
-      this.storeSession(user, token);
-
-      // Start session timeout
-      this.startSessionTimeout();
-
-      return {
-        success: true,
-        user,
-        token
-      };
     } catch (error) {
       console.error('Login error:', error);
       return {
         success: false,
-        error: 'Login failed. Please try again.'
+        error: 'Connection failed. Please check your internet connection and try again.'
       };
     }
-  }
-
-  // Generate session token
-  private static generateSessionToken(user: AuthUser): string {
-    const sessionData = {
-      userId: user.id,
-      username: user.username,
-      role: user.role,
-      loginTime: Date.now()
-    };
-    return btoa(JSON.stringify(sessionData));
   }
 
   // Store session in localStorage
   private static storeSession(user: AuthUser, token: string): void {
     const sessionData = {
       user,
-      token,
+      jwt_token: token,
       loginTime: Date.now(),
       expiresAt: Date.now() + this.SESSION_TIMEOUT
     };
     localStorage.setItem('userSession', JSON.stringify(sessionData));
+    localStorage.setItem('jwt_token', token);
   }
 
   // Get current session
-  static getCurrentSession(): { user: AuthUser; token: string } | null {
+  static getCurrentSession(): { user: AuthUser; jwt_token: string } | null {
     try {
       const sessionData = localStorage.getItem('userSession');
       if (!sessionData) return null;
@@ -114,10 +114,20 @@ export class AuthService {
 
       return {
         user: session.user,
-        token: session.token
+        jwt_token: session.jwt_token
       };
     } catch (error) {
       console.error('Error getting session:', error);
+      return null;
+    }
+  }
+
+  // Get JWT token
+  static getJwtToken(): string | null {
+    try {
+      return localStorage.getItem('jwt_token');
+    } catch (error) {
+      console.error('Error getting JWT token:', error);
       return null;
     }
   }
@@ -129,7 +139,7 @@ export class AuthService {
       const newExpiresAt = Date.now() + this.SESSION_TIMEOUT;
       const sessionData = {
         user: session.user,
-        token: session.token,
+        jwt_token: session.jwt_token,
         loginTime: Date.now(),
         expiresAt: newExpiresAt
       };
@@ -157,6 +167,7 @@ export class AuthService {
   // Logout user
   static logout(): void {
     localStorage.removeItem('userSession');
+    localStorage.removeItem('jwt_token');
     if (this.sessionTimer) {
       clearTimeout(this.sessionTimer);
       this.sessionTimer = null;

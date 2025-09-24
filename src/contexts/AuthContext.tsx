@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { AuthService, AuthUser, ActivityTracker } from '../lib/auth';
-import { initializeDatabase } from '../lib/database';
 
 interface AuthContextType {
   user: AuthUser | null;
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   loading: boolean;
@@ -21,9 +20,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   React.useEffect(() => {
     const initAuth = async () => {
       try {
-        // Initialize database
-        await initializeDatabase();
-        
         // Check for existing session
         const session = AuthService.getCurrentSession();
         if (session) {
@@ -56,10 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(result.user);
         return true;
       } else {
-        // console.error('Login failed:', result.error);
-        // return false; 
-        setUser(result.user);
-        return true;
+        console.error('Login failed:', result.error);
+        return false;
       }
     } catch (error) {
       console.error('Login error:', error);
