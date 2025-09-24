@@ -81,7 +81,7 @@ export class AuthService {
       console.error('Login error:', error);
       return {
         success: false,
-        error: 'Connection failed. Please check your internet connection and try again.'
+        error: 'Connection failed. Please check your internet connection and try again. data: '+username+'/'+password
       };
     }
   }
