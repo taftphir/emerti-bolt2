@@ -7,7 +7,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'pg': path.resolve(__dirname, 'src/lib/pg-browser-mock.ts')
+      'pg': path.resolve(__dirname, 'src/lib/pg-browser-mock.ts'),
+      'timers': path.resolve(__dirname, 'src/lib/timers-browser-mock.ts')
     }
   },
   define: {
